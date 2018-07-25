@@ -11,7 +11,7 @@ This application supports the [Getting Started with Java on Heroku](https://devc
 Make sure you have Java and Maven installed.  Also, install the [Heroku Toolbelt](https://toolbelt.heroku.com/).
 
 ```sh
-$ git clone https://github.com/orangy/ktor-heroku-start.git
+$ git clone https://github.com/simonebortolin/ktor-heroku-start.git
 $ cd ktor-heroku-start
 $ mvn install
 $ heroku local:start
