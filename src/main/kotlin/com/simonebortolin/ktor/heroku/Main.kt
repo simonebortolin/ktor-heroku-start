@@ -13,7 +13,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import java.util.*
 import kotlinx.html.*
-import kotlinx.html.stream.createHTML
 
 val hikariConfig = HikariConfig().apply {
     jdbcUrl = System.getenv("JDBC_DATABASE_URL")
