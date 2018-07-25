@@ -3,6 +3,10 @@ package com.simonebortolin.ktor.heroku
 import com.zaxxer.hikari.*
 import freemarker.cache.*
 import io.ktor.application.*
+import io.ktor.content.file
+import io.ktor.content.files
+import io.ktor.content.static
+import io.ktor.content.staticRootFolder
 import io.ktor.features.*
 import io.ktor.freemarker.*
 import io.ktor.html.respondHtml
@@ -13,6 +17,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import java.util.*
 import kotlinx.html.*
+import java.io.File
 
 val hikariConfig = HikariConfig().apply {
     jdbcUrl = System.getenv("JDBC_DATABASE_URL")
@@ -40,7 +45,7 @@ fun Application.module() {
         }
     }
 
-    install(Routing) {
+    routing {
 
         get("hello") {
             call.respond("Hello World")
@@ -99,10 +104,27 @@ fun Application.module() {
             val etag = model.toString().hashCode().toString()
             call.respond(FreeMarkerContent("db.ftl", model, etag, html_utf8))
         }
+
+        static("static") {
+            staticRootFolder = File("public")
+
+            file("lang-logo.png")
+        }
+
+        static("stylesheets") {
+            files("public/stylesheets")
+        }
+
     }
+
+
 }
 
 fun main(args: Array<String>) {
-    val port = Integer.valueOf(System.getenv("PORT"))
+    val port = try {
+        Integer.valueOf(System.getenv("PORT"))
+    } catch (e: Exception) {
+        9999
+    }
     embeddedServer(Netty, port, module = Application::module).start()
 }
