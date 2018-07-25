@@ -8,18 +8,18 @@
     <artifactId>ktor-heroku-start</artifactId>
 
     <properties>
-        <kotlin.version>1.1.1</kotlin.version>
-        <ktor.version>0.3.1</ktor.version>
+        <kotlin.version>1.2.51</kotlin.version>
+        <ktor.version>0.9.3</ktor.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.jetbrains.ktor</groupId>
-            <artifactId>ktor-netty</artifactId>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-netty</artifactId>
             <version>${ktor.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.ktor</groupId>
+            <groupId>io.ktor</groupId>
             <artifactId>ktor-freemarker</artifactId>
             <version>${ktor.version}</version>
         </dependency>
@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jre8</artifactId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
@@ -53,6 +53,12 @@
             <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-html-builder</artifactId>
+            <version>${ktor.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>
@@ -80,7 +86,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>org.jetbrains.ktor.heroku.MainKt</mainClass>
+                            <mainClass>com.simonebortolin.ktor.heroku.MainKt</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -127,6 +133,14 @@
         <repository>
             <id>ktor</id>
             <url>http://dl.bintray.com/kotlin/ktor</url>
+        </repository>
+        <repository>
+            <id>kotlinx</id>
+            <url>http://dl.bintray.com/kotlin/kotlinx</url>
+        </repository>
+        <repository>
+            <id>jcenter</id>
+            <url>http://jcenter.bintray.com</url>
         </repository>
     </repositories>
 </project>

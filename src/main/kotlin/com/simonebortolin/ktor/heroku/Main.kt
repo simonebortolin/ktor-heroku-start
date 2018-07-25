@@ -1,16 +1,19 @@
-package org.jetbrains.ktor.heroku
+package com.simonebortolin.ktor.heroku
 
 import com.zaxxer.hikari.*
 import freemarker.cache.*
-import org.jetbrains.ktor.application.*
-import org.jetbrains.ktor.content.*
-import org.jetbrains.ktor.features.*
-import org.jetbrains.ktor.freemarker.*
-import org.jetbrains.ktor.host.*
-import org.jetbrains.ktor.http.*
-import org.jetbrains.ktor.netty.*
-import org.jetbrains.ktor.routing.*
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.freemarker.*
+import io.ktor.html.respondHtml
+import io.ktor.http.*
+import io.ktor.response.respond
+import io.ktor.routing.*
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import java.util.*
+import kotlinx.html.*
+import kotlinx.html.stream.createHTML
 
 val hikariConfig = HikariConfig().apply {
     jdbcUrl = System.getenv("JDBC_DATABASE_URL")
@@ -26,7 +29,7 @@ val html_utf8 = ContentType.Text.Html.withCharset(Charsets.UTF_8)
 fun Application.module() {
     install(DefaultHeaders)
     install(ConditionalHeaders)
-    install(PartialContentSupport)
+    install(PartialContent)
 
     install(FreeMarker) {
         templateLoader = ClassTemplateLoader(environment.classLoader, "templates")
@@ -39,7 +42,6 @@ fun Application.module() {
     }
 
     install(Routing) {
-        serveClasspathResources("public")
 
         get("hello") {
             call.respond("Hello World")
@@ -56,6 +58,28 @@ fun Application.module() {
             call.respond(FreeMarkerContent("index.ftl", model, etag, html_utf8))
         }
 
+        get("/kotlinxhtml") {
+            call.respondHtml {
+                head {
+                    title { +"Async World" }
+                }
+                body {
+                    h1 {
+                        id = "title"
+                        +"Title"
+                    }
+                    div {
+                        id = "div"
+                        +"Hello World"
+                    }
+                    div {
+                        id = "ktor-kotlinx"
+                        +"Ktor Kotlinx"
+                    }
+                }
+            }
+        }
+
         get("/db") {
             val model = HashMap<String, Any>()
             dataSource.connection.use { connection ->
@@ -63,6 +87,7 @@ fun Application.module() {
                     executeUpdate("CREATE TABLE IF NOT EXISTS ticks (tick timestamp)")
                     executeUpdate("INSERT INTO ticks VALUES (now())")
                     executeQuery("SELECT tick FROM ticks")
+
                 }
 
                 val output = ArrayList<String>()
@@ -80,7 +105,5 @@ fun Application.module() {
 
 fun main(args: Array<String>) {
     val port = Integer.valueOf(System.getenv("PORT"))
-    embeddedServer(Netty, port, reloadPackages = listOf("heroku"), module = Application::module).start()
+    embeddedServer(Netty, port, module = Application::module).start()
 }
-
-
