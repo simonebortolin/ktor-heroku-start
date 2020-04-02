@@ -1,22 +1,27 @@
 package com.simonebortolin.ktor.heroku
 
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.zaxxer.hikari.*
 import freemarker.cache.*
 import io.ktor.application.*
-import io.ktor.content.file
-import io.ktor.content.files
-import io.ktor.content.static
-import io.ktor.content.staticRootFolder
 import io.ktor.features.*
 import io.ktor.freemarker.*
 import io.ktor.html.respondHtml
 import io.ktor.http.*
+import io.ktor.http.content.file
+import io.ktor.http.content.files
+import io.ktor.http.content.static
+import io.ktor.http.content.staticRootFolder
+import io.ktor.jackson.jackson
 import io.ktor.response.respond
+import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import java.util.*
 import kotlinx.html.*
+import kotlinx.css.*
+import kotlinx.css.properties.*
 import java.io.File
 
 val hikariConfig = HikariConfig().apply {
@@ -42,6 +47,12 @@ fun Application.module() {
     install(StatusPages) {
         exception<Exception> { exception ->
             call.respond(FreeMarkerContent("error.ftl", exception, "", html_utf8))
+        }
+    }
+
+    install(ContentNegotiation) {
+        jackson {
+            enable(SerializationFeature.INDENT_OUTPUT)
         }
     }
 
@@ -105,6 +116,24 @@ fun Application.module() {
             call.respond(FreeMarkerContent("db.ftl", model, etag, html_utf8))
         }
 
+        get("/styles.css") {
+            call.respondCss {
+                body {
+                    backgroundColor = Color.red
+                }
+                p {
+                    fontSize = 2.em
+                }
+                rule("p.myclass") {
+                    color = Color.blue
+                }
+            }
+        }
+
+        get("/json/jackson") {
+            call.respond(mapOf("hello" to "world"))
+        }
+
         static("static") {
             staticRootFolder = File("public")
 
@@ -127,4 +156,18 @@ fun main(args: Array<String>) {
         9999
     }
     embeddedServer(Netty, port, module = Application::module).start()
+}
+
+fun FlowOrMetaDataContent.styleCss(builder: CSSBuilder.() -> Unit) {
+    style(type = ContentType.Text.CSS.toString()) {
+        +CSSBuilder().apply(builder).toString()
+    }
+}
+
+fun CommonAttributeGroupFacade.style(builder: CSSBuilder.() -> Unit) {
+    this.style = CSSBuilder().apply(builder).toString().trim()
+}
+
+suspend inline fun ApplicationCall.respondCss(builder: CSSBuilder.() -> Unit) {
+    this.respondText(CSSBuilder().apply(builder).toString(), ContentType.Text.CSS)
 }
