@@ -36,12 +36,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.13</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.4-1201-jdbc4</version>
+            <version>42.7.12</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
